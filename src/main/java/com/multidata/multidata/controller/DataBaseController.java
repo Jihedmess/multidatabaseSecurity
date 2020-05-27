@@ -60,7 +60,17 @@ public class DataBaseController {
          return ResponseEntity.ok().body(centreInteretAccountList);
        
     }
-	
+	@GetMapping(path = "/finddbById/{id}")
+    @ResponseBody
+    public ResponseEntity finddbById(@PathVariable long id) {
+
+        StringBuffer retBuf = new StringBuffer();
+
+        Optional<DataBase> centreIntertAccount = databaserepository.findById(id);
+
+      
+        return ResponseEntity.ok().body(centreIntertAccount);
+    }
 	 @PutMapping(path = "/updatedb")
 	    @ResponseBody
 	    public ResponseEntity updateMp(@RequestBody DataBase db ) {
@@ -77,6 +87,7 @@ public class DataBaseController {
 	        	newDb.get().setUrl(db.getUrl());
 	        	newDb.get().setUser(db.getUser());
 	        	newDb.get().setPassword(db.getPassword());
+	        	//newDb.get().setPassword(db.getPassword());
 	        	
 	            	
 	        	databaserepository.save(newDb.get());

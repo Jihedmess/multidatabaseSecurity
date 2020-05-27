@@ -17,9 +17,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -80,7 +82,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/signup")
-	public ResponseEntity<?> registerUser(@Validated @RequestBody SignupRequest signUpRequest) {
+	public ResponseEntity<?> registerUser( @RequestBody SignupRequest signUpRequest) {
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
 			return ResponseEntity
 					.badRequest()
@@ -156,4 +158,42 @@ public class AuthController {
       
         return ResponseEntity.ok().body(centreIntertAccount);
     }
+	
+	@DeleteMapping(path = "/deleteUser/{id}")
+    @ResponseBody
+    public ResponseEntity deleteById(@PathVariable long id) {
+
+        StringBuffer retBuf = new StringBuffer();
+
+        userRepository.deleteById(id);
+
+        retBuf.append("user has been deleted successfully.");
+
+        return ResponseEntity.ok().body(retBuf.toString()) ;
+    }
+	
+	@PutMapping(path = "/updateUser")
+    @ResponseBody
+    public ResponseEntity updateMp(@RequestBody User user ) {
+
+        StringBuffer retBuf = new StringBuffer();
+
+        Optional<User> newuser = userRepository.findById(user.getId());
+
+        if (newuser != null) {
+           
+        	newuser.get().setUsername(user.getUsername());
+        	newuser.get().setEmail(user.getEmail());
+        	newuser.get().setPassword(encoder.encode(user.getPassword()));
+        	
+        	           	
+        	userRepository.save(newuser.get());
+            
+        }
+
+        retBuf.append("user data update successfully.");
+
+        return ResponseEntity.ok().body(retBuf.toString()) ;
+    }
+ 
 }

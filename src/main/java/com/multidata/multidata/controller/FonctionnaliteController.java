@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.multidata.multidata.models.DataBase;
 import com.multidata.multidata.models.Fonctionalite;
 import com.multidata.multidata.repository.FonctionnaliteRepository;
 
@@ -78,6 +79,18 @@ public class FonctionnaliteController {
 	        return ResponseEntity.ok().body(retBuf.toString()) ;
 	    }
 	 
+	 
+	 @GetMapping(path = "/findfoncById/{id}")
+	    @ResponseBody
+	    public ResponseEntity finddbById(@PathVariable long id) {
+
+	        StringBuffer retBuf = new StringBuffer();
+
+	        Optional<Fonctionalite> centreIntertAccount = fonctionaliterepository.findById(id);
+
+	      
+	        return ResponseEntity.ok().body(centreIntertAccount);
+	    }
 	 
 	 @DeleteMapping(path = "/deletefonct/{id}")
 	    @ResponseBody
