@@ -1,5 +1,6 @@
 package com.multidata.multidata.controller;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +34,15 @@ public class FonctionnaliteController {
 	@PostMapping(path = "/addfonct")
     @ResponseBody
     public ResponseEntity addDepence(@RequestBody Fonctionalite fonctionalite) {
+		new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getName()).mkdir();
+		File rep = new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getName());
+		File fichier1 = new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getFileActivation());
+		File fichier2 = new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getFilaDesactivation());
+		File fichier3 = new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getFileChek());
+		fichier1.renameTo(new File (rep,fichier1.getName()));
+		fichier2.renameTo(new File (rep,fichier2.getName()));
+		fichier3.renameTo(new File (rep,fichier3.getName()));
+		
         
          Object a =  fonctionaliterepository.save(fonctionalite);
         
