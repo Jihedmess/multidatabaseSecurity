@@ -18,6 +18,30 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.multidata.multidata.models.DataBase;
+import com.multidata.multidata.models.databaseRequest;
+import com.multidata.multidata.repository.DatabaseRepository;
+
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.multidata.multidata.models.DataBase;
 import com.multidata.multidata.repository.DatabaseRepository;
 
 
@@ -44,7 +68,7 @@ public class DataBaseController {
          Object a =  databaserepository.save(newDataBse);
 
         
-
+         
         return ResponseEntity.ok().body(a);
 
     }
@@ -71,33 +95,40 @@ public class DataBaseController {
       
         return ResponseEntity.ok().body(centreIntertAccount);
     }
+	 
+	   
 	 @PutMapping(path = "/updatedb")
-	    @ResponseBody
-	    public ResponseEntity updateMp(@RequestBody DataBase db ) {
-
-	        StringBuffer retBuf = new StringBuffer();
-
-	        Optional<DataBase> newDb = databaserepository.findById(db.getId());
-
-	        if (newDb != null) {
-	           
-	        	newDb.get().setName(db.getName());
-	        	
-	        	newDb.get().setPlatform(db.getPlatform());
-	        	newDb.get().setUrl(db.getUrl());
-	        	newDb.get().setUser(db.getUser());
-	        	newDb.get().setPassword(db.getPassword());
-	        	//newDb.get().setPassword(db.getPassword());
-	        	
-	            	
-	        	databaserepository.save(newDb.get());
-	            
-	        }
-
-	        retBuf.append("database data update successfully.");
-
-	        return ResponseEntity.ok().body(retBuf.toString()) ;
+	    public ResponseEntity<DataBase> createOrUpdate(@RequestBody databaseRequest employee){
+	    System.out.println("test la valeur de id database");
+        System.out.println(employee.getUrl());
+                                          
+		 DataBase updated = createOrUpdateDatabase(employee);
+		 
+	        return new ResponseEntity<DataBase>(updated, new HttpHeaders(), HttpStatus.OK);
 	    }
+	 
+	 
+	 public DataBase createOrUpdateDatabase(databaseRequest entity)  
+	    {
+	        Optional<DataBase> database = databaserepository.findById(entity.getId());
+	        System.out.println("test la valeur de id database");
+	        System.out.println(entity.getUrl());
+	        DataBase newEntity = null;
+	        if(database.isPresent()) 
+	        {
+	        	 newEntity = database.get();
+	        	    newEntity.setPlatform(entity.getPlatform());
+		            newEntity.setUrl(entity.getUrl());
+		            newEntity.setUser(entity.getUser());
+		            newEntity.setPassword(entity.getPassword());
+		            newEntity.setName(entity.getName());
+		            newEntity =  databaserepository.save(newEntity);
+	            
+	             
+	           
+	        } 
+	        return newEntity;
+	    } 
 	 
 	 
 	 @DeleteMapping(path = "/deletedb/{id}")
@@ -112,5 +143,16 @@ public class DataBaseController {
 
 	        return ResponseEntity.ok().body(retBuf.toString()) ;
 	    }
+	 
+	 
+	 
+	 /*
+	  *  newEntity.setPlatform(db.getPlatform());
+	            newEntity.setUrl(db.getUrl());
+	            newEntity.setUser(db.getUser());
+	            newEntity.setPassword(db.getPassword());
+	            databaserepository.save(newEntity);
+	  */          
+	  
 
 }

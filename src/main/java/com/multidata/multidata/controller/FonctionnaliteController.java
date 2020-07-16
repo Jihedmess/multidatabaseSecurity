@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.multidata.multidata.models.DataBase;
 import com.multidata.multidata.models.Fonctionalite;
+import com.multidata.multidata.models.fonctionnaliterequest;
 import com.multidata.multidata.repository.FonctionnaliteRepository;
 
 
@@ -34,14 +37,18 @@ public class FonctionnaliteController {
 	@PostMapping(path = "/addfonct")
     @ResponseBody
     public ResponseEntity addDepence(@RequestBody Fonctionalite fonctionalite) {
-		new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getName()).mkdir();
-		File rep = new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getName());
-		File fichier1 = new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getFileActivation());
-		File fichier2 = new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getFilaDesactivation());
-		File fichier3 = new File("C:\\Users\\jihed\\OneDrive\\Bureau\\versionfinalPfe2020\\f2\\"+fonctionalite.getFileChek());
+		//creation d'un dossier spécifique
+		//new File("C:\\NeOXam")
+		new File("C:\\Users\\ASUS\\Desktop\\fonctionnalés\\"+fonctionalite.getName()).mkdir();
+		File rep = new File("C:\\Users\\ASUS\\Desktop\\fonctionnalés\\"+fonctionalite.getName());
+	
+		File fichier1 = new File("C:\\Users\\ASUS\\Desktop\\fonctionnalés\\"+fonctionalite.getFileActivation());
+		File fichier2 = new File("C:\\Users\\ASUS\\Desktop\\fonctionnalés\\"+fonctionalite.getFilaDesactivation());
+		File fichier3 = new File("C:\\Users\\ASUS\\Desktop\\fonctionnalés\\"+fonctionalite.getFileChek());
 		fichier1.renameTo(new File (rep,fichier1.getName()));
 		fichier2.renameTo(new File (rep,fichier2.getName()));
 		fichier3.renameTo(new File (rep,fichier3.getName()));
+		//uplaodFile(fichier1);
 		
         
          Object a =  fonctionaliterepository.save(fonctionalite);
@@ -64,30 +71,38 @@ public class FonctionnaliteController {
 	
 	 @PutMapping(path = "/updatefonct")
 	    @ResponseBody
-	    public ResponseEntity updateMp(@RequestBody Fonctionalite fc ) {
+	    public ResponseEntity updatefonct(@RequestBody fonctionnaliterequest fc ) {
 
-	        StringBuffer retBuf = new StringBuffer();
-
-	        Optional<Fonctionalite> newfonct = fonctionaliterepository.findById(fc.getId());
-
-	        if (newfonct != null) {
-	           
-	        	newfonct.get().setName(fc.getName());
-	        	newfonct.get().setDesscription(fc.getDesscription());
-	        	newfonct.get().setFileActivation(fc.getFileActivation());
-	        	newfonct.get().setFilaDesactivation(fc.getFilaDesactivation());
-	        	newfonct.get().setFileChek(fc.getFileChek());
-	        	
-	        	
-	            	
-	        	fonctionaliterepository.save(newfonct.get());
-	            
-	        }
-
-	        retBuf.append("fonctionalite data update successfully.");
-
-	        return ResponseEntity.ok().body(retBuf.toString()) ;
+		Fonctionalite updated = Updatefonctionalite(fc);
+		 
+	        return new ResponseEntity<DataBase>(new HttpHeaders(), HttpStatus.OK);
 	    }
+	
+	
+	 public Fonctionalite Updatefonctionalite(fonctionnaliterequest entity)  
+	    {
+	        Optional<Fonctionalite> fonctionnalite = fonctionaliterepository.findById(entity.getId());
+	        System.out.println("test la valeur de id database");
+	        System.out.println(entity.getUrl());
+	        Fonctionalite newEntity = null;
+	        if(fonctionnalite.isPresent()) 
+	        {
+	        	 newEntity = fonctionnalite.get();
+	        	 newEntity.setName(entity.getName());
+	        	 newEntity.setDesscription(entity.getDesscription());
+	        	 newEntity.setFileActivation(entity.getFileActivation());
+	        	 newEntity.setFilaDesactivation(entity.getFilaDesactivation());
+	        	 newEntity.setUrl(entity.getUrl());
+	        	 newEntity.setFileChek(entity.getFileChek());
+	        	 
+		         newEntity =  fonctionaliterepository.save(newEntity);
+	            
+	             
+	           
+	        } 
+	        return newEntity;
+	    } 
+	 
 	 
 	 
 	 @GetMapping(path = "/findfoncById/{id}")
@@ -115,4 +130,31 @@ public class FonctionnaliteController {
 	        return ResponseEntity.ok().body(retBuf.toString()) ;
 	    }
 
+	 
+	 
+	
+	
+	/*
+	 * public void uplaodFile( MultipartFile file) throws IOException {
+	 * 
+	 * System.out.println("Original file Byte Size - " + file.().length); ModelFile
+	 * model = new ModelFile(file.getOriginalFilename(), file.getContentType(),
+	 * compressZLib(file.getBytes())); fonctionaliterepository.save(model)
+	 * 
+	 * 
+	 * }
+	 */
+	 
+	 
+	/*
+	 * public ModelFile getfile( String fileName) throws IOException {
+	 * 
+	 * final Optional<ModelFile> retrievedfile =
+	 * fonctionaliterepository.findByName(fileName); ModelFile file = new
+	 * ModelFile(retrievedImage.get().getName(), retrievedFile.get().getType(),
+	 * decompressZLib(retrievedFile.get().getPicByte())); return file; }
+	 */
+	 
 }
+
+
