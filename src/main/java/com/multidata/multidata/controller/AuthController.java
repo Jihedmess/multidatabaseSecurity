@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +33,7 @@ import com.multidata.multidata.models.DataBase;
 import com.multidata.multidata.models.ERole;
 import com.multidata.multidata.models.Role;
 import com.multidata.multidata.models.User;
+import com.multidata.multidata.models.UserRequest;
 import com.multidata.multidata.repository.RoleRepository;
 import com.multidata.multidata.repository.UserRepository;
 import com.multidata.multidata.request.LoginRequest;
@@ -172,28 +175,60 @@ public class AuthController {
         return ResponseEntity.ok().body(retBuf.toString()) ;
     }
 	
+
 	@PutMapping(path = "/updateUser")
     @ResponseBody
-    public ResponseEntity updateMp(@RequestBody User user ) {
-
-        StringBuffer retBuf = new StringBuffer();
-
-        Optional<User> newuser = userRepository.findById(user.getId());
-
-        if (newuser != null) {
-           
-        	newuser.get().setUsername(user.getUsername());
-        	newuser.get().setEmail(user.getEmail());
-        	newuser.get().setPassword(encoder.encode(user.getPassword()));
-        	
-        	           	
-        	userRepository.save(newuser.get());
-            
-        }
-
-        retBuf.append("user data update successfully.");
-
-        return ResponseEntity.ok().body(retBuf.toString()) ;
+    public ResponseEntity updateMp(@RequestBody UserRequest user ) {
+		
+	        
+	                                          
+			 User updated = createOrUpdateuser(user);
+			 
+		        return new ResponseEntity<User>(updated, new HttpHeaders(), HttpStatus.OK);
     }
+	
+	
+	public User createOrUpdateuser(UserRequest entity)  
+    {
+		Optional<User> newuser = userRepository.findById(entity.getId());
+      
+        User newEntity = null;
+        if(newuser.isPresent()) 
+        {
+        	 newEntity = newuser.get();
+        	
+        	 newEntity.setEmail(entity.getEmail());
+        	 newEntity.setPassword(encoder.encode(entity.getPassword()));
+        	 newEntity.setUsername(entity.getUsername());
+        	 String strRoles = entity.getRole();
+     		Set<Role> roles = new HashSet<>();
+
+     		if (strRoles == null) {
+     			Role userRole = roleRepository.findByName(ERole.user)
+     					.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+     			roles.add(userRole);
+     		} else {
+     			
+     				switch (strRoles) {
+     				case "admin":
+     					Role adminRole = roleRepository.findByName(ERole.admin)
+     							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+     					roles.add(adminRole);
+
+     					break;
+     				   default:
+     					Role userRole = roleRepository.findByName(ERole.user)
+     							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+     					roles.add(userRole);
+     				}
+     		
+     		}
+     		newEntity.setRoles(roles);
+        	 newEntity =  userRepository.save(newEntity);
+             
+           
+        } 
+        return newEntity;
+    } 
  
 }
